@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字幸运轮盘 | Chinese Vocabulary Wheel</title>
+    
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --secondary: #ff6b6b;
+            --accent: #20c997;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #fd7e14;
+            --info: #17a2b8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            color: var(--dark);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        .mode-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #wheel-mode {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        #quiz-container {
+            display: none;
+            width: 100%;
+        }
+        
+        .wheel-container {
+            position: relative;
+            margin: 2rem 0;
+        }
+        
+        #wheel {
+            width: 400px;
+            height: 400px;
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.21, 0.99);
+            z-index: 1;
+        }
+        
+        .wheel-center {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            top: 170px;
+            left: 170px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border: 3px solid var(--primary);
+        }
+        
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 190px;
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid var(--secondary);
+            z-index: 3;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+        
+        #result {
+            font-size: 1.5rem;
+            margin: 1.5rem 0;
+            padding: 1rem 2rem;
+            background: var(--light);
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80%;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(74, 107, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(74, 107, 255, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn-accent {
+            background: var(--accent);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3);
+        }
+        
+        .btn-accent:hover {
+            box-shadow: 0 6px 12px rgba(32, 201, 151, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(74, 107, 255, 0.1);
+            box-shadow: none;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .quiz-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quiz-card::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        #quiz-question {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        #quiz-question strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        #quiz-question small {
+            display: block;
+            font-size: 1rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        #quiz-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        #quiz-options button {
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+        
+        #quiz-options button::before {
+            content: attr(data-option);
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        #quiz-options button span {
+            margin-left: 45px;
+            display: inline-block;
+        }
+        
+        #quiz-options button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #quiz-options button:active {
+            transform: translateY(0);
+        }
+        
+        #quiz-feedback {
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 1rem 0;
+            min-height: 30px;
+            font-weight: 600;
+        }
+        
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .stat-box i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        #quiz-score {
+            color: var(--primary);
+        }
+        
+        #time-left {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        
+        #downloadCert {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            #wheel {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .wheel-center {
+                width: 50px;
+                height: 50px;
+                top: 125px;
+                left: 125px;
+            }
+            
+            .wheel-pointer {
+                top: -15px;
+                left: 140px;
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-top: 30px solid var(--secondary);
+            }
+            
+            #quiz-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+                margin: 0.3rem 0;
+            }
+        }
+        
+        /* Animation classes */
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Confetti effect */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 10;
+            animation: confetti 3s ease-in-out;
+        }
+        
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(500px) rotate(720deg); opacity: 0; }
+        }
+    </style>
+  <script type="module" crossorigin src="/assets/index-5da60274.js"></script>
+</head>
+<body>
+    <header>
+        <h1>汉字幸运轮盘</h1>
+        <p class="subtitle">Chinese Vocabulary Wheel & Quiz</p>
+    </header>
+    
+    <div class="container">
+        <div class="mode-container">
+            <div id="wheel-mode">
+                <div class="wheel-container">
+                    <canvas id="wheel" width="400" height="400"></canvas>
+                    <div class="wheel-center">GO</div>
+                    <div class="wheel-pointer"></div>
+                </div>
+                
+                <div id="result">点击旋转按钮开始</div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                
+                <div class="btn-group">
+                    <button id="spinBtn" class="btn pulse">
+                        <i>🎡</i> 旋转轮盘
+                    </button>
+                    <button id="quizModeBtn" class="btn btn-secondary">
+                        <i>🧠</i> 测验模式
+                    </button>
+                </div>
+            </div>
+            
+            <div id="quiz-container">
+                <div class="quiz-stats">
+                    <div class="stat-box" id="quiz-score">
+                        <i>📊</i> 得分: 0 / 0
+                    </div>
+                    <div class="stat-box" id="quiz-timer">
+                        <i>⏱️</i> 剩余时间: <span id="time-left">60</span>秒
+                    </div>
+                </div>
+                
+                <div class="quiz-card">
+                    <div id="quiz-question"></div>
+                    <div id="quiz-options"></div>
+                    <div id="quiz-feedback"></div>
+                </div>
+                
+                <div class="btn-group">
+                    <button id="backToWheel" class="btn btn-outline">
+                        <i>↩️</i> 返回轮盘
+                    </button>
+                    <button id="downloadCert" class="btn btn-accent">
+                        <i>📄</i> 下载证书
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const wordMap = {
+            "能": "can/able to", "病": "illness", "感冒": "cold",
+            "头疼": "headache", "发烧": "fever", "咳嗽": "cough",
+            "前天": "the day before yesterday", "场": "field",
+            "足球": "football", "比赛": "match", "回来": "come back",
+            "带": "bring", "伞": "umbrella", "看病": "see doctor",
+            "开": "open/start", "打针": "get injection",
+            "最好": "had better", "休息": "rest",
+            "请假条": "leave note", "请假": "ask for leave",
+            "希望": "hope", "批准": "approve", "月": "month", "日": "day"
+        };
+        
+        const words = Object.keys(wordMap);
+        const total = words.length;
+        const sliceAngle = 2 * Math.PI / total;
+        
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const spinBtn = document.getElementById("spinBtn");
+        const quizModeBtn = document.getElementById("quizModeBtn");
+        const result = document.getElementById("result");
+        const wheelMode = document.getElementById("wheel-mode");
+        const progressBar = document.getElementById("progressBar");
+        
+        const quizContainer = document.getElementById("quiz-container");
+        const quizQuestion = document.getElementById("quiz-question");
+        const quizOptions = document.getElementById("quiz-options");
+        const quizFeedback = document.getElementById("quiz-feedback");
+        const backToWheel = document.getElementById("backToWheel");
+        const quizScore = document.getElementById("quiz-score");
+        const quizTimer = document.getElementById("quiz-timer");
+        const timeLeftEl = document.getElementById("time-left");
+        const downloadCertBtn = document.getElementById("downloadCert");
+        
+        let angle = 0;
+        let spinning = false;
+        let correctCount = 0;
+        let totalCount = 0;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let progressInterval = null;
+        let progress = 0;
+        
+        // 🎵 Sound functions
+        function playSpinTickSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "square";
+            osc.frequency.value = 600 + Math.random() * 200;
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.1);
+        }
+        
+        function playBeep(success = true) {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = ctx.createOscillator();
+            oscillator.type = "sine";
+            oscillator.frequency.value = success ? 880 : 240;
+            oscillator.connect(ctx.destination);
+            oscillator.start();
+            oscillator.stop(ctx.currentTime + 0.2);
+        }
+        
+        function playSuccessSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc1.type = "sine";
+            osc1.frequency.value = 880;
+            osc2.type = "sine";
+            osc2.frequency.value = 1318.51;
+            
+            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+            
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc1.start(ctx.currentTime);
+            osc2.start(ctx.currentTime);
+            osc1.stop(ctx.currentTime + 0.5);
+            osc2.stop(ctx.currentTime + 0.5);
+        }
+        
+        // 🌀 Wheel drawing
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw outer circle
+            ctx.beginPath();
+            ctx.arc(200, 200, 190, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#4a6bff";
+            ctx.lineWidth = 5;
+            ctx.stroke();
+            
+            // Draw slices
+            for (let i = 0; i < total; i++) {
+                const start = angle + i * sliceAngle;
+                const end = start + sliceAngle;
+                
+                ctx.beginPath();
+                ctx.moveTo(200, 200);
+                ctx.arc(200, 200, 180, start, end);
+                ctx.closePath();
+                
+                // Gradient fill for slices
+                const gradient = ctx.createLinearGradient(
+                    200 + Math.cos(start) * 180,
+                    200 + Math.sin(start) * 180,
+                    200 + Math.cos(end) * 180,
+                    200 + Math.sin(end) * 180
+                );
+                
+                if (i % 2) {
+                    gradient.addColorStop(0, "#4a6bff");
+                    gradient.addColorStop(1, "#6a8bff");
+                } else {
+                    gradient.addColorStop(0, "#ff6b6b");
+                    gradient.addColorStop(1, "#ff8b8b");
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Text
+                ctx.save();
+                ctx.translate(
+                    200 + Math.cos(start + sliceAngle / 2) * 130,
+                    200 + Math.sin(start + sliceAngle / 2) * 130
+                );
+                ctx.rotate(start + sliceAngle / 2 + Math.PI / 2);
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 18px 'Arial', sans-serif";
+                ctx.textAlign = "center";
+                ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+                ctx.shadowBlur = 2;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                ctx.fillText(words[i], 0, 0);
+                ctx.restore();
+            }
+            
+            // Center circle
+            ctx.beginPath();
+            ctx.arc(200, 200, 40, 0, 2 * Math.PI);
+            
+            const centerGradient = ctx.createRadialGradient(200, 200, 0, 200, 200, 40);
+            centerGradient.addColorStop(0, "#ffffff");
+            centerGradient.addColorStop(1, "#e0e0e0");
+            
+            ctx.fillStyle = centerGradient;
+            ctx.fill();
+            
+            ctx.strokeStyle = "#4a6bff";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            ctx.fillStyle = "#4a6bff";
+            ctx.font = "bold 20px 'Arial', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("GO", 200, 200);
+        }
+        
+        // 🎡 Wheel spin animation
+        function spinWheel() {
+            if (spinning) return;
+            spinning = true;
+            result.textContent = "🎲 正在转动...";
+            result.classList.add("shake");
+            
+            const targetRotation = angle + Math.PI * (10 + Math.random() * 5);
+            const duration = 4000 + Math.random() * 2000;
+            const start = performance.now();
+            
+            // Reset progress bar
+            progress = 0;
+            progressBar.style.width = "0%";
+            
+            // Start progress interval
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                progress += 1;
+                progressBar.style.width = `${progress}%`;
+                if (progress >= 100) clearInterval(progressInterval);
+            }, duration / 100);
+            
+            function animate(t) {
+                const elapsed = Math.min((t - start) / duration, 1);
+                const easeOut = 1 - Math.pow(1 - elapsed, 4);
+                angle += (targetRotation - angle) * easeOut;
+                drawWheel();
+                
+                // Play tick sound at certain intervals
+                if (elapsed < 0.95 && (elapsed * 100 % 5 < 0.1)) {
+                    playSpinTickSound();
+                }
+                
+                if (elapsed < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    const idx = Math.floor(((2 * Math.PI - angle % (2 * Math.PI)) / sliceAngle) % total);
+                    result.textContent = `🎉 抽中：${words[idx]} - ${wordMap[words[idx]]}`;
+                    result.classList.remove("shake");
+                    spinning = false;
+                    
+                    // Create confetti effect
+                    createConfetti();
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 🎊 Confetti effect
+        function createConfetti() {
+            const colors = ['#4a6bff', '#ff6b6b', '#20c997', '#fd7e14', '#6f42c1'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                confetti.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                document.body.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+        
+        // 🧠 Quiz logic
+        function startQuizRound() {
+            quizFeedback.textContent = "";
+            quizFeedback.style.color = "";
+            const entries = Object.entries(wordMap);
+            const [correctChar, meaning] = entries[Math.floor(Math.random() * entries.length)];
+            
+            quizQuestion.innerHTML = `
+                <div>📘 What is the Chinese for:</div>
+                <div><strong>“${meaning}”</strong></div>
+                <div class="hint"><small>Hint: 我${correctChar}去医院。</small></div>
+            `;
+            
+            const options = [correctChar];
+            while (options.length < 4) {
+                const rand = entries[Math.floor(Math.random() * entries.length)][0];
+                if (!options.includes(rand)) options.push(rand);
+            }
+            
+            options.sort(() => Math.random() - 0.5);
+            quizOptions.innerHTML = "";
+            
+            options.forEach((opt, i) => {
+                const btn = document.createElement("button");
+                btn.dataset.option = String.fromCharCode(65 + i);
+                btn.innerHTML = `<span>${opt}</span>`;
+                
+                btn.onclick = () => {
+                    if (btn.disabled) return;
+                    
+                    // Disable all buttons after selection
+                    document.querySelectorAll('#quiz-options button').forEach(b => b.disabled = true);
+                    
+                    totalCount++;
+                    if (opt === correctChar) {
+                        correctCount++;
+                        playBeep(true);
+                        quizFeedback.textContent = "✅ 正确！";
+                        quizFeedback.style.color = "#28a745";
+                        btn.style.backgroundColor = "#d4edda";
+                        btn.style.color = "#155724";
+                    } else {
+                        playBeep(false);
+                        quizFeedback.textContent = `❌ 错了！答案是：${correctChar} (${wordMap[correctChar]})`;
+                        quizFeedback.style.color = "#dc3545";
+                        btn.style.backgroundColor = "#f8d7da";
+                        btn.style.color = "#721c24";
+                        
+                        // Highlight correct answer
+                        document.querySelectorAll('#quiz-options button').forEach(b => {
+                            if (b.querySelector('span').textContent === correctChar) {
+                                b.style.backgroundColor = "#d4edda";
+                                b.style.color = "#155724";
+                            }
+                        });
+                    }
+                    
+                    quizScore.innerHTML = `<i>📊</i> 得分: ${correctCount} / ${totalCount}`;
+                    
+                    // Update progress bar based on accuracy
+                    const accuracy = totalCount > 0 ? (correctCount / totalCount) * 100 : 0;
+                    progressBar.style.width = `${accuracy}%`;
+                    
+                    if (accuracy > 70) {
+                        progressBar.style.background = "linear-gradient(90deg, #28a745, #20c997)";
+                    } else if (accuracy > 40) {
+                        progressBar.style.background = "linear-gradient(90deg, #ffc107, #fd7e14)";
+                    } else {
+                        progressBar.style.background = "linear-gradient(90deg, #dc3545, #fd7e14)";
+                    }
+                    
+                    setTimeout(startQuizRound, 1500);
+                };
+                
+                quizOptions.appendChild(btn);
+            });
+        }
+        
+        // ⏱️ Timer
+        function startTimer() {
+            timeLeft = 60;
+            timeLeftEl.textContent = timeLeft;
+            clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timeLeftEl.textContent = timeLeft;
+                
+                // Change color when time is running out
+                if (timeLeft <= 10) {
+                    timeLeftEl.style.color = "#dc3545";
+                    quizTimer.classList.add("shake");
+                } else {
+                    timeLeftEl.style.color = "";
+                    quizTimer.classList.remove("shake");
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endQuizAndShowCertificate();
+                }
+            }, 1000);
+        }
+        
+        // 📄 Show certificate
+        function endQuizAndShowCertificate() {
+            playSuccessSound();
+            quizQuestion.innerHTML = `
+                <div style="font-size: 1.6rem; margin-bottom: 1rem;">🎓 测验完成！</div>
+                <div style="font-size: 1.2rem; margin-bottom: 1rem;">你的最终得分是:</div>
+                <div style="font-size: 2rem; color: #4a6bff; font-weight: bold; margin-bottom: 1.5rem;">
+                    ${correctCount} / ${totalCount}
+                </div>
+                <div style="font-size: 1rem; color: #666;">
+                    准确率: ${Math.round((correctCount / totalCount) * 100)}%
+                </div>
+            `;
+            
+            quizOptions.innerHTML = "";
+            quizFeedback.textContent = "";
+            downloadCertBtn.style.display = "inline-block";
+            
+            // Create confetti effect
+            createConfetti();
+        }
+        
+        // 📜 Certificate generation
+        downloadCertBtn.addEventListener("click", () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: "landscape",
+                unit: "mm",
+                format: "a4"
+            });
+            
+            // Add background
+            doc.setFillColor(240, 240, 245);
+            doc.rect(0, 0, 297, 210, 'F');
+            
+            // Decorative border
+            doc.setDrawColor(74, 107, 255);
+            doc.setLineWidth(2);
+            doc.roundedRect(10, 10, 277, 190, 5, 5, 'S');
+            
+            // Add decorative elements
+            doc.setFillColor(74, 107, 255, 20);
+            doc.circle(50, 50, 40, 'F');
+            doc.circle(250, 160, 60, 'F');
+            
+            // Title
+            doc.setFont("Helvetica", "bold");
+            doc.setTextColor(44, 62, 80);
+            doc.setFontSize(28);
+            doc.text("汉字学习证书", 148, 40, { align: "center" });
+            
+            // Subtitle
+            doc.setFontSize(16);
+            doc.setFont("Helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            doc.text("Certificate of Achievement in Chinese Vocabulary", 148, 50, { align: "center" });
+            
+            // Main content
+            doc.setFontSize(14);
+            doc.setTextColor(70, 70, 70);
+            doc.text("兹证明", 148, 70, { align: "center" });
+            
+            // Student name line
+            doc.setFontSize(18);
+            doc.setTextColor(50, 50, 50);
+            doc.text("学生姓名: _________________________", 148, 90, { align: "center" });
+            
+            // Achievement text
+            doc.setFontSize(14);
+            doc.text("在汉字词汇测验中表现优异，获得:", 148, 110, { align: "center" });
+            
+            // Score display
+            const accuracy = Math.round((correctCount / totalCount) * 100);
+            doc.setFontSize(24);
+            doc.setTextColor(74, 107, 255);
+            doc.text(`${correctCount} / ${totalCount} (${accuracy}% 准确率)`, 148, 125, { align: "center" });
+            
+            // Date and signature
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            const date = new Date().toLocaleDateString('zh-CN');
+            doc.text(`颁发日期: ${date}`, 50, 160);
+            doc.text("教师签名: _________________________", 50, 175);
+            
+            // Seal
+            doc.setFillColor(255, 50, 50, 30);
+            doc.circle(240, 160, 30, 'F');
+            doc.setFontSize(16);
+            doc.setTextColor(200, 0, 0);
+            doc.text("北京理工大学", 240, 155, { align: "center" });
+            doc.setFontSize(12);
+            doc.text("认证专用章", 240, 165, { align: "center" });
+            
+            // Footer
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text("此证书由汉字幸运轮盘学习系统生成", 148, 195, { align: "center" });
+            
+            // Save the PDF
+            doc.save(`汉字学习证书_${date}.pdf`);
+        });
+        
+        // 🎮 Event Listeners
+        spinBtn.addEventListener("click", spinWheel);
+        
+        quizModeBtn.addEventListener("click", () => {
+            wheelMode.style.display = "none";
+            quizContainer.style.display = "block";
+            correctCount = 0;
+            totalCount = 0;
+            downloadCertBtn.style.display = "none";
+            quizScore.innerHTML = `<i>📊</i> 得分: 0 / 0`;
+            progressBar.style.width = "0%";
+            progressBar.style.background = "linear-gradient(90deg, #4a6bff, #6a8bff)";
+            startQuizRound();
+            startTimer();
+        });
+        
+        backToWheel.addEventListener("click", () => {
+            wheelMode.style.display = "block";
+            quizContainer.style.display = "none";
+            quizFeedback.textContent = "";
+            clearInterval(timerInterval);
+            progressBar.style.width = "0%";
+        });
+        
+        // Initialize
+        drawWheel();
+        
+        // Add tooltip to wheel button
+        spinBtn.classList.add("tooltip");
+        const tooltip = document.createElement("span");
+        tooltip.className = "tooltiptext";
+        tooltip.textContent = "点击旋转轮盘，随机选择一个汉字";
+        spinBtn.appendChild(tooltip);
+        
+        // Add tooltip to quiz button
+        quizModeBtn.classList.add("tooltip");
+        const quizTooltip = document.createElement("span");
+        quizTooltip.className = "tooltiptext";
+        quizTooltip.textContent = "进入测验模式，测试你的汉字知识";
+        quizModeBtn.appendChild(quizTooltip);
+    </script>
+</body>
+</html>

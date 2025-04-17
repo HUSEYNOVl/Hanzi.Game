@@ -1,0 +1,25 @@
+{
+  "name": "my-chinese-game",
+  "version": "1.0.0",
+  "description": "A simple Chinese game built with HTML, CSS, and JavaScript.",
+  "main": "index.html",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "game",
+    "html",
+    "css",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "jspdf": "^2.5.1"
+  },
+  "devDependencies": {
+    "vite": "^4.3.9"
+  }
+}
